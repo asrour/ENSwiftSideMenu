@@ -227,6 +227,7 @@ public class ENSideMenu : NSObject, UIGestureRecognizerDelegate {
             height
         )
         sideMenuContainerView.frame = menuFrame
+        
     }
     
     private func adjustFrameDimensions( width: CGFloat, height: CGFloat ) -> (CGFloat,CGFloat) {
@@ -271,10 +272,11 @@ public class ENSideMenu : NSObject, UIGestureRecognizerDelegate {
     
     private func toggleMenu (shouldOpen: Bool) {
         
-         DynamicView.frame = CGRectMake(0, 0,(sourceView.frame.width)-(sideMenuContainerView.frame.width), sourceView.frame.height)
+        DynamicView.frame = CGRectMake(0, 0,(sourceView.frame.width), sourceView.frame.height)
         DynamicView.backgroundColor=UIColor.blackColor()
         DynamicView.alpha = CGFloat(0.5)
         sourceView.addSubview(DynamicView)
+        sourceView.bringSubviewToFront(sideMenuContainerView)
         
         if (shouldOpen && delegate?.sideMenuShouldOpenSideMenu?() == false) {
             return
@@ -450,6 +452,7 @@ public class ENSideMenu : NSObject, UIGestureRecognizerDelegate {
             
             let shouldClose = menuPosition == .Left ? !leftToRight && CGRectGetMaxX(sideMenuContainerView.frame) < menuWidth : leftToRight && CGRectGetMinX(sideMenuContainerView.frame) >  (sourceView.frame.size.width - menuWidth)
             
+
             toggleMenu(!shouldClose)
             
         }
