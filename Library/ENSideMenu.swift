@@ -105,20 +105,11 @@ public extension UIViewController {
         if (topController is UITabBarController) {
             topController = (topController as! UITabBarController).selectedViewController
         }
-        var lastMenuProtocol : ENSideMenuProtocol?
-        while (topController?.presentedViewController != nil) {
-            if(topController?.presentedViewController is ENSideMenuProtocol) {
-                lastMenuProtocol = topController?.presentedViewController as? ENSideMenuProtocol
-            }
+        while (topController?.presentedViewController is ENSideMenuProtocol) {
             topController = topController?.presentedViewController
         }
         
-        if (lastMenuProtocol != nil) {
-            return lastMenuProtocol
-        }
-        else {
-            return topController as? ENSideMenuProtocol
-        }
+        return topController as? ENSideMenuProtocol
     }
 }
 
@@ -138,6 +129,7 @@ public class ENSideMenu : NSObject, UIGestureRecognizerDelegate {
     /// The duration of the slide animation. Used only when `bouncingEnabled` is FALSE.
     public var animationDuration = 0.4
     private let sideMenuContainerView =  UIView()
+    private var DynamicView = UIView()
     private(set) var menuViewController : UIViewController!
     private var animator : UIDynamicAnimator!
     private var sourceView : UIView!
@@ -203,7 +195,8 @@ public class ENSideMenu : NSObject, UIGestureRecognizerDelegate {
     
     :returns: An initialized `ENSideMenu` object, added to the specified view, containing the specified menu view controller.
     */
-    public convenience init(sourceView: UIView, menuViewController: UIViewController, menuPosition: ENSideMenuPosition, blurStyle: UIBlurEffectStyle = .Light) {
+    public convenience init(sourceView: UIView, menuViewController: UIViewController, menuPosition: ENSideMenuPosition, blurStyle: UIBlurEffectStyle = .Light)
+    {
         self.init(sourceView: sourceView, menuPosition: menuPosition, blurStyle: blurStyle)
         self.menuViewController = menuViewController
         self.menuViewController.view.frame = sideMenuContainerView.bounds
@@ -277,6 +270,12 @@ public class ENSideMenu : NSObject, UIGestureRecognizerDelegate {
     }
     
     private func toggleMenu (shouldOpen: Bool) {
+        
+         DynamicView.frame = CGRectMake(0, 0,(sourceView.frame.width)-(sideMenuContainerView.frame.width), sourceView.frame.height)
+        DynamicView.backgroundColor=UIColor.blackColor()
+        DynamicView.alpha = CGFloat(0.5)
+        sourceView.addSubview(DynamicView)
+        
         if (shouldOpen && delegate?.sideMenuShouldOpenSideMenu?() == false) {
             return
         }
@@ -347,9 +346,10 @@ public class ENSideMenu : NSObject, UIGestureRecognizerDelegate {
                 completion: { (Bool) -> Void in
                     if (self.isMenuOpen) {
                         self.delegate?.sideMenuDidOpen?()
+
                     } else {
                         self.delegate?.sideMenuDidClose?()
-                    }
+                                            }
             })
         }
         
@@ -357,15 +357,12 @@ public class ENSideMenu : NSObject, UIGestureRecognizerDelegate {
             delegate?.sideMenuWillOpen?()
         } else {
             delegate?.sideMenuWillClose?()
+            DynamicView.removeFromSuperview()
+
         }
     }
     
     public func gestureRecognizerShouldBegin(gestureRecognizer: UIGestureRecognizer) -> Bool {
-        
-        if delegate?.sideMenuShouldOpenSideMenu?() == false {
-            return false
-        }
-        
         if gestureRecognizer is UISwipeGestureRecognizer {
             let swipeGestureRecognizer = gestureRecognizer as! UISwipeGestureRecognizer
             if !self.allowLeftSwipe {
@@ -512,4 +509,5 @@ extension ENSideMenu: UIDynamicAnimatorDelegate {
         print("resume")
     }
 }
+
 
