@@ -4,7 +4,7 @@
 //
 //  Created by Evgeny on 24.07.14.
 //  Copyright (c) 2014 Evgeny Nazarov. All rights reserved.
-//
+//  Modified By Ali Srour.
 
 import UIKit
 
@@ -122,6 +122,8 @@ public class ENSideMenu : NSObject, UIGestureRecognizerDelegate {
             updateFrame()
         }
     }
+    
+
     private var menuPosition:ENSideMenuPosition = .Left
     private var blurStyle: UIBlurEffectStyle = .Light
     ///  A Boolean value indicating whether the bouncing effect is enabled. The default value is TRUE.
@@ -166,6 +168,7 @@ public class ENSideMenu : NSObject, UIGestureRecognizerDelegate {
         panRecognizer!.delegate = self
         sourceView.addGestureRecognizer(panRecognizer!)
         
+        
         // Add right swipe gesture recognizer
         let rightSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: "handleGesture:")
         rightSwipeGestureRecognizer.delegate = self
@@ -186,6 +189,7 @@ public class ENSideMenu : NSObject, UIGestureRecognizerDelegate {
         }
         
     }
+    
     /**
     Initializes an instance of a `ENSideMenu` object.
     
@@ -278,6 +282,10 @@ public class ENSideMenu : NSObject, UIGestureRecognizerDelegate {
         sourceView.addSubview(DynamicView)
         sourceView.bringSubviewToFront(sideMenuContainerView)
         
+        let tap = UITapGestureRecognizer(target: self, action: Selector("handleTap:"))
+        tap.delegate = self
+        DynamicView.addGestureRecognizer(tap)
+        
         if (shouldOpen && delegate?.sideMenuShouldOpenSideMenu?() == false) {
             return
         }
@@ -362,6 +370,10 @@ public class ENSideMenu : NSObject, UIGestureRecognizerDelegate {
             DynamicView.removeFromSuperview()
 
         }
+    }
+    
+    func handleTap(sender: UITapGestureRecognizer? = nil) {
+        hideSideMenu()
     }
     
     public func gestureRecognizerShouldBegin(gestureRecognizer: UIGestureRecognizer) -> Bool {
